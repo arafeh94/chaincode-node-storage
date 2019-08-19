@@ -121,7 +121,7 @@ module.exports = class StorageChaincode {
     logger.debug('invokeChaincode chaincode=%s channel=%s args=%j invokeArgs=%j',
         chaincode, channel, args, invokeArgs);
 
-    return this.stub.invokeChaincode(chaincode, invokeArgs, channel);
+    return this.stub.invokeChaincode(chaincode, args, channel);
   }
 
   setEvent(name, args) {
