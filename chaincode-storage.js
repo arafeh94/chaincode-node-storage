@@ -114,14 +114,9 @@ module.exports = class StorageChaincode {
 
   async invokeChaincode(chaincode, args, channel) {
     let invokeArgs = [];
-    args.forEach(a => {
-      invokeArgs.push(Buffer.from(a));
-    });
-
     logger.debug('invokeChaincode chaincode=%s channel=%s args=%j invokeArgs=%j',
         chaincode, channel, args, invokeArgs);
-
-    return this.stub.invokeChaincode(chaincode, args, channel);
+    return this.stub.invokeChaincode(chaincode, args, channel).then(value => this.deflate(value));
   }
 
   setEvent(name, args) {
@@ -192,6 +187,31 @@ module.exports = class StorageChaincode {
     }
 
     return {key: k, value: v};
+  }
+
+  deflate(value) {
+    if (!value || !value.payload || !value.payload.buffer) return value;
+    try {
+      let response = value.payload.buffer.toString();
+      let start = null;
+      let end = null;
+      let length = response.length;
+      for (let pos in response) {
+        let inv = length - pos;
+        if (!start && response[pos] == '{' || response[pos] == '[') {
+          start = {index: pos, type: response[pos]}
+        }
+        if (!end && response[inv] == '}' || response[inv] == ']') {
+          end = {index: inv, type: response[inv]}
+        }
+      }
+      let sliced = response.slice(start.index, end.index + 1);
+      let parsed = JSON.parse(sliced);
+      return JSON.stringify(parsed);
+    }
+    catch (e) {
+      return value.payload.toString()
+    }
   }
 };
 
