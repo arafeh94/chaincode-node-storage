@@ -198,10 +198,10 @@ module.exports = class StorageChaincode {
             let length = response.length;
             for (let pos in response) {
                 let inv = length - pos;
-                if (!start && response[pos] == '{' || response[pos] == '[') {
+                if (!start && (response[pos] == '{' || response[pos] == '[')) {
                     start = {index: pos, type: response[pos]}
                 }
-                if (!end && response[inv] == '}' || response[inv] == ']') {
+                if (!end && (response[inv] == '}' || response[inv] == ']')) {
                     end = {index: inv, type: response[inv]}
                 }
             }
